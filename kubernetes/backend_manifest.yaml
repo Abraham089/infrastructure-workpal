@@ -17,7 +17,8 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: backend-workpal
-          image: backend-workpal:1.0
+          image: ghcr.io/abraham089/backend-workpal:dev-latest
+          imagePullPolicy: Always
           resources:
             requests:
               memory: "64Mi"
@@ -81,7 +82,7 @@ metadata:
   name: backend-workpal-secret
 type: Opaque
 stringData:
-  SECRET_KEY: str
+  SECRET_KEY: 7cf1d71f8a3651cb6dfb7bcddf3150d9b0cd10133d7f690afab0ebc14c94234c
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -89,8 +90,7 @@ metadata:
   namespace: workpal
   name: backend-workpal-configmap
 data:
-  FRONTEND_URL: str
-  FRONTEND_IP_URL: str
-  FRONTEND_DOCKER_URL: str
-  ALGORITHM: str
-  ACCESS_TOKEN_EXPIRE_MINUTES: int
+  FRONTEND_URL: http://localhost:5173
+  FRONTEND_IP_URL: http://127.0.0.1:5173
+  ALGORITHM: HS256
+  ACCESS_TOKEN_EXPIRE_MINUTES: "30"
