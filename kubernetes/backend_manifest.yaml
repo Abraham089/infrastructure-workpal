@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: workpal
+  name: backend-workpal
+  labels:
+    app: backend-workpal
+spec:
+  selector:
+    matchLabels:
+      app: backend-workpal
+  template:
+    metadata:
+      labels:
+        app: backend-workpal
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: backend-workpal
+          image: backend-workpal:1.0
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+              ephemeral-storage: "256Mi"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+              ephemeral-storage: "512Mi"
+          ports:
+            - containerPort: 8000
+          env:
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backend-workpal-secret
+                  key: SECRET_KEY
+            - name: FRONTEND_IP_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-workpal-configmap
+                  key: FRONTEND_IP_URL
+            - name: FRONTEND_DOCKER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-workpal-configmap
+                  key: FRONTEND_DOCKER_URL
+            - name: FRONTEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-workpal-configmap
+                  key: FRONTEND_URL
+            - name: ALGORITHM
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-workpal-configmap
+                  key: ALGORITHM
+            - name: ACCESS_TOKEN_EXPIRE_MINUTES
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-workpal-configmap
+                  key: ACCESS_TOKEN_EXPIRE_MINUTES
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: workpal
+  name: backend-workpal-service
+spec:
+  selector:
+    app: backend-workpal
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: workpal
+  name: backend-workpal-secret
+type: Opaque
+stringData:
+  SECRET_KEY: str
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: workpal
+  name: backend-workpal-configmap
+data:
+  FRONTEND_URL: str
+  FRONTEND_IP_URL: str
+  FRONTEND_DOCKER_URL: str
+  ALGORITHM: str
+  ACCESS_TOKEN_EXPIRE_MINUTES: int
